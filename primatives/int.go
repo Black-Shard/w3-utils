@@ -1,4 +1,4 @@
-package utils
+package primatives
 
 import (
 	"math/big"
