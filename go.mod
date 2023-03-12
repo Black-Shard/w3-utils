@@ -1,4 +1,4 @@
-module w3-utils
+module github.com/Black-Shard/w3-utils
 
 go 1.20
 
