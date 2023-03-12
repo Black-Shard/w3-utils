@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/big"
 
+	"github.com/Black-Shard/w3-utils/w3math"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/lmittmann/w3"
 	"github.com/lmittmann/w3/module/eth"
@@ -25,7 +26,7 @@ func getGas(walletAddress common.Address, client *w3.Client) (uint64, *big.Int) 
 
 	fmt.Println(gasPrice)
 	fmt.Println(gasMultiplier)
-	utils.MulWadDirect(&gasPrice, gasMultiplier)
+	w3math.MulWadDirect(&gasPrice, gasMultiplier)
 	fmt.Printf("Calculated Gas Price: %v\n", gasPrice)
 
 	var nonce uint64
