@@ -55,6 +55,15 @@ func executeTransfer(token string, amount *big.Int, to string, rpc string, execu
 	return txHash
 }
 
+func executeSwap(from string, to string, amount *big.Int, rpc string) common.Hash {
+
+	var txHash common.Hash
+
+	return txHash
+}
+
+// ******************
+// Tx Input Encoding //
 func erc20Transfer(args ...any) []byte {
 	// Tx Setup
 	var funcTransfer = w3.MustNewFunc("transfer(address,uint256)", "bool")
@@ -63,4 +72,45 @@ func erc20Transfer(args ...any) []byte {
 		log.Fatal("Error encoding tx")
 	}
 	return txInput
+}
+
+func returnTokens(token common.Address) []byte {
+	// Tx Setup
+	var funcTransfer = w3.MustNewFunc("recoverTokens(address)", "")
+	txInput, err := funcTransfer.EncodeArgs(token)
+	if err != nil {
+		log.Fatal("Error encoding tx")
+	}
+	return txInput
+}
+
+// ******************************
+// Create and send tx options //
+func createTx(to string, token string, txInput []byte, client *w3.Client) *types.Transaction {
+	privateKey, walletAddress := getPk()
+	toAddress := common.HexToAddress(to)
+	nonce, gasPrice := getGas(walletAddress, client)
+	chainid := getChainId(client)
+	value := big.NewInt(0)
+	var gasLimit uint64 = 200000
+
+	tx := types.NewTransaction(nonce, toAddress, value, gasLimit, gasPrice, txInput)
+	signedTx, _ := types.SignTx(tx, types.NewEIP155Signer(chainid), privateKey)
+	fmt.Printf("Tx Target: %s \n", tx.To())
+
+	return signedTx
+}
+
+func sendTx(signedTx *types.Transaction, client *w3.Client) common.Hash {
+	var txHash common.Hash
+	fmt.Println("Sending Tx...")
+	err := client.Call(
+		eth.SendTx(signedTx).Returns(&txHash),
+	)
+	if err != nil {
+		fmt.Printf("Error Occured : %s \n", err)
+	}
+	fmt.Printf("Tx Hash: %s \n", txHash)
+
+	return txHash
 }
